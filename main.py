@@ -6,7 +6,6 @@ async def main():
     await asyncio.gather(Bpm(), Seq(), Down(), Input())
 
 async def Bpm():
-    #global bpm
     global pos
     while 1 == 1:
         for pos in range(8):
@@ -46,12 +45,13 @@ async def Down():
                     ld.duty_u16(duty)
                     await asyncio.sleep(0.003)
                 ld.duty_u16(0)
-                #await asyncio.sleep_ms(1)
             else:
                 ld = l[pos]
+                ld.duty_u16(100000)
+                await asyncio.sleep(bpm/2)
                 for duty in range(100000, -1, -1000):
                     ld.duty_u16(duty)
-                    await asyncio.sleep(0.003)
+                    await asyncio.sleep(bpm/1000)
                 ld.duty_u16(0)
         if pos == 7:
              ypos = 0
@@ -62,7 +62,6 @@ async def Down():
 async def Input():
     global bpm
     global long
-    #global ibpm
     while 1 == 1:
         if bt_long.value() == True:
             long = 1
@@ -70,8 +69,6 @@ async def Input():
             long = 0
         ivbpm = int(ADC(26).read_u16()/1000)
         bpm = 1/(lbpm[ivbpm]/60)
-        #print(ivbpm)
-        #print(bpm)
         await asyncio.sleep_ms(1)
 
 
@@ -80,7 +77,7 @@ ivbpm = 1
 lbpm = []
 for ibpm in range(60, 260, 3):
     lbpm.append(ibpm)
-print(len(lbpm))
+
 long = 0
 xpos = 0
 ypos = 0

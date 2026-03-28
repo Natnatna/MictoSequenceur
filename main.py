@@ -39,17 +39,17 @@ async def Down():
         if pos == ypos:
             if long == 1:
                 ld = l[pos-1]
-                for duty in range(100000, -1, -release*1000):
+                for duty in range(65536, -1, ldown[release]):
                     ld.duty_u16(duty)
-                    await asyncio.sleep(1/release/10000)
+                    await asyncio.sleep(0.01)
                 ld.duty_u16(0)
             else:
                 ld = l[pos]
-                ld.duty_u16(100000)
-                await asyncio.sleep((1/release)/2)
-                for duty in range(100000, -1, -1000):
+                ld.duty_u16(65536)
+                await asyncio.sleep(0.01)
+                for duty in range(65536, -1, ldown[release]):
                     ld.duty_u16(duty)
-                    await asyncio.sleep((1/release)/10000)
+                    await asyncio.sleep(0.001)
                 ld.duty_u16(0)
         if pos == 7:
              ypos = 0
@@ -68,13 +68,16 @@ async def Input():
             long = 0
         ivbpm = int(ADC(26).read_u16()/1000)
         bpm = 1/(lbpm[ivbpm]/60)
-        ivrelease = int(ADC(27).read_u16()/1000)
-        release = (ivrelease+1)
+        release = int(ADC(27).read_u16()/1000)
         await asyncio.sleep_ms(1)
 
 
 #initialisation
 release = 1
+ldown = []
+for idown in range(-65536, 1, 1000):
+    ldown.append(idown+1)
+
 ivbpm = 1
 lbpm = []
 for ibpm in range(60, 260, 3):
